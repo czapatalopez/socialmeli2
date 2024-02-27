@@ -60,4 +60,13 @@ public class RepositoryTest {
         //Act  Assert
         assertThrows(FollowException.class, ()->userRepoImp.addFollower(userId,userIdToFollow));
     }
+
+    @Test
+    void followNormalExceptionTest(){
+        //Arrange
+        Integer userId=2;
+        Integer userIdToFollow=4;
+        //Act  Assert
+        assertThrows(FollowException.class, ()->userRepoImp.addFollower(userId,userIdToFollow));
+    }
 }
