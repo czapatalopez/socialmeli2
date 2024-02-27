@@ -15,6 +15,7 @@ import com.bootcamp.be_java_hisp_w25_g14.utils.ApiMapper;
 import com.bootcamp.be_java_hisp_w25_g14.utils.HelperFunctions;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -34,18 +35,18 @@ public class PostServiceImp implements IPostService{
     }
 
     @Override
-    public MessageDto savePost(PostDto postDto) {
+    public MessageDto savePost(@Valid PostDto postDto) {
         Optional<User> isUserExists = userRepository.findUserById(postDto.getUser_id());
 
         if (isUserExists.isEmpty()) throw new NotFoundException("The user does not exist");
 
         if(!isUserExists.get().getIsSeller()) throw new NotSellerException("The user is not a seller");
 
-        try{
+        /*try{
             LocalDate.parse(postDto.getDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         }catch (DateTimeParseException e) {
             throw new NotValidDateException("the date is not valid");
-        }
+        }*/
 
         postRepository.savePost(ApiMapper.convertToPostEntity(postDto));
 
@@ -80,8 +81,12 @@ public class PostServiceImp implements IPostService{
                 /*
                 Especificamos que nuestras fechas están en formato dd-mm-yyyy para parsear
                  */
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                LocalDate postDate = LocalDate.parse(post.getDate(), formatter);
+
+
+                //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                //LocalDate postDate = LocalDate.parse(post.getDate(), formatter);
+
+                LocalDate postDate = post.getDate();
 
                 return postDate.isBefore(today.plusDays(1)) && postDate.isAfter(today.minusDays(15));
 
