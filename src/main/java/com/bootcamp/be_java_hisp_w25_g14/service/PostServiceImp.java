@@ -6,6 +6,7 @@ import com.bootcamp.be_java_hisp_w25_g14.dto.UserDataDto;
 import com.bootcamp.be_java_hisp_w25_g14.entity.Post;
 import com.bootcamp.be_java_hisp_w25_g14.entity.User;
 import com.bootcamp.be_java_hisp_w25_g14.dto.UserFollowedPostDto;
+import com.bootcamp.be_java_hisp_w25_g14.exceptions.InvalidRequestException;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotSellerException;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotValidDateException;
@@ -64,8 +65,15 @@ public class PostServiceImp implements IPostService{
 
     @Override
     public UserFollowedPostDto getFollowedPostsByUserLastTwoWeeks(Integer id, String sorted) {
+        //Check if sorted parameter is wrong
+        if(sorted!=null && !(sorted.equals("date_asc") || sorted.equals("date_desc")))
+            throw new InvalidRequestException("The order parameter should be either date_asc or date_desc.");
+
         List<PostDto> postsOfLastTwoWeeks = new ArrayList<>();
         List<UserDataDto> followedUsers = userRepository.getFollowed(id);
+
+        if(followedUsers.isEmpty())
+            throw new NotFoundException("User with id: "+id+" does not follow anyone");
 
         for(UserDataDto user : followedUsers){
             List<Post> userPosts = postRepository.getPostsById(user.getUser_id());
@@ -96,12 +104,13 @@ public class PostServiceImp implements IPostService{
         /*
         Sorteamos la lista si el usuario lo especifica (ascendente o descendente)
          */
-        if(sorted!=null && sorted.equals("date_asc")){
+
+        if(sorted!=null && sorted.equals("date_asc")){ //Sort in ascending order
             return new UserFollowedPostDto(id,HelperFunctions.sortPostsByDateAscending(postsOfLastTwoWeeks));
-        } else if (sorted!=null && sorted.equals("date_desc")) {
+        } else if (sorted != null) { //Sort in descending order
             return new UserFollowedPostDto(id,HelperFunctions.sortPostsByDateDescending(postsOfLastTwoWeeks));
         }
-
+        //Default sort is in descending order
         return new UserFollowedPostDto(id,HelperFunctions.sortPostsByDateDescending(postsOfLastTwoWeeks));
     }
 }
