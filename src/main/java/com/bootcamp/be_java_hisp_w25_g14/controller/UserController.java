@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.bootcamp.be_java_hisp_w25_g14.utils.UserValidator.validateUserId;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -16,7 +18,7 @@ public class UserController {
     public ResponseEntity<?> listSellersFollower(@PathVariable int id,
                                                   @RequestParam(required = false) String order){
 
-
+        validateUserId(id, "UserId");
         return new ResponseEntity<>(this.userService.listSellersFollowers(id, order), HttpStatus.OK);
     }
 
@@ -26,23 +28,28 @@ public class UserController {
 
     @GetMapping("/{userId}/follow/{userIdToFollow}")
     public ResponseEntity<?> addFollow(@PathVariable Integer userId, @PathVariable Integer userIdToFollow){
+        validateUserId(userId, "UserId");
+        validateUserId(userIdToFollow, "UserIdToFollow");
         this.userService.addFollowe(userId,userIdToFollow);
         return new ResponseEntity<>(new MessageDto("Follow successfully",""), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/unfollow/{userIdToUnfollow}")
     public ResponseEntity<?> removeFollow(@PathVariable Integer userId, @PathVariable Integer userIdToUnfollow) {
-        this.userService.removeFollow(userId, userIdToUnfollow);
+        validateUserId(userId, "UserId");
+        validateUserId(userIdToUnfollow, "UserIdToUnFollow");
         return new ResponseEntity<>(new MessageDto("Unfollow successfully", ""), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/followed/list")
     public ResponseEntity<?>getFollowed(@PathVariable Integer userId){
+        validateUserId(userId, "UserId");
         return new ResponseEntity<>(this.userService.getFollowedByUser(userId),HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/followers/count")
     public ResponseEntity<?> getUserFollowersCount(@PathVariable Integer userId) {
+        validateUserId(userId, "UserId");
         return new ResponseEntity<>(this.userService.getUserFollowersCount(userId),HttpStatus.OK);
     }
 }

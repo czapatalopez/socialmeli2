@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+import static com.bootcamp.be_java_hisp_w25_g14.utils.UserValidator.validateUserId;
+
 
 @RestController
 @RequestMapping("/products")
@@ -27,6 +29,7 @@ public class PostController {
 
     @GetMapping("/followed/{userId}/list")
     public ResponseEntity<?> getFollowedPostsLastTwoWeeks(@PathVariable Integer userId, @RequestParam(required = false) String order){
+        validateUserId(userId, "UserId");
         return new ResponseEntity<>(postService.getFollowedPostsByUserLastTwoWeeks(userId,order),HttpStatus.OK);
     }
 
