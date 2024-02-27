@@ -2,6 +2,7 @@ package com.bootcamp.be_java_hisp_w25_g14.exceptions;
 
 import com.bootcamp.be_java_hisp_w25_g14.dto.MessageDto;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,29 +15,34 @@ public class ExceptionConfig {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> noFound(NotFoundException ex){
-        return ResponseEntity.status(400).body(new MessageDto(ex.getMessage(), ""));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDto(ex.getMessage(), ""));
     }
     @ExceptionHandler(FollowException.class)
     public ResponseEntity<?> follow(FollowException ex){
-        return ResponseEntity.status(400).body(new MessageDto(ex.getMessage(), ""));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDto(ex.getMessage(), ""));
     }
 
     @ExceptionHandler(NotSellerException.class)
     public ResponseEntity<?> notASeller(NotSellerException ex){
-        return ResponseEntity.status(400).body(new MessageDto(ex.getMessage(), ""));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDto(ex.getMessage(), ""));
     }
 
     @ExceptionHandler(NotValidDateException.class)
     public ResponseEntity<?> notValidDate(NotValidDateException ex){
-        return ResponseEntity.status(400).body(new MessageDto(ex.getMessage(), ""));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDto(ex.getMessage(), ""));
     }
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<?> mismatchType(MethodArgumentTypeMismatchException ex){
-        return ResponseEntity.status(400).body(new MessageDto("Error during parsing type value", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDto("Error during parsing type value", ex.getMessage()));
     }
 
     @ExceptionHandler({NoHandlerFoundException.class})
     public ResponseEntity<?> noResourceFound(NoHandlerFoundException ex,  HttpServletRequest httpServletRequest){
-        return ResponseEntity.status(404).body(new MessageDto("Endpoint No Found", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageDto("Endpoint No Found", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<?> invalidRequest(InvalidRequestException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDto("Invalid Request", ex.getMessage()));
     }
 }
