@@ -33,6 +33,7 @@ public class UserRepoImp implements IUserRepo {
         if (optionalSellers.isEmpty()){
 
             throw new NotFoundException("Seller not found ");
+
         }
 
         User seller = optionalSellers.get();
