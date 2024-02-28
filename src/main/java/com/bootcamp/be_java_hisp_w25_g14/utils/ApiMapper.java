@@ -5,6 +5,9 @@ import com.bootcamp.be_java_hisp_w25_g14.entity.Post;
 import com.bootcamp.be_java_hisp_w25_g14.entity.Product;
 import com.bootcamp.be_java_hisp_w25_g14.entity.User;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class ApiMapper {
@@ -34,7 +37,7 @@ public class ApiMapper {
         PostDto postDto = new PostDto();
         postDto.setPost_id(post.getPostId());
         postDto.setUser_id(post.getUserId());
-        postDto.setDate(post.getDate());
+        postDto.setDate(post.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
         postDto.setProduct(convertToProductDto(post.getProduct()));
         postDto.setCategory(post.getCategory());
         postDto.setPrice(post.getPrice());
@@ -47,7 +50,9 @@ public class ApiMapper {
 
         Post post = new Post();
         post.setUserId(postDto.getUser_id());
-        post.setDate(postDto.getDate());
+
+        post.setDate(LocalDate.parse(postDto.getDate(),DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+
         post.setProduct(convertToProductEntity(postDto.getProduct()));
         post.setCategory(postDto.getCategory());
         post.setPrice(postDto.getPrice());
