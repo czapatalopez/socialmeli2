@@ -1,12 +1,10 @@
-package com.bootcamp.be_java_hisp_w25_g14.T0005;
+package com.bootcamp.be_java_hisp_w25_g14.T0006;
 
 import com.bootcamp.be_java_hisp_w25_g14.dto.PostDto;
 import com.bootcamp.be_java_hisp_w25_g14.dto.UserDataDto;
 import com.bootcamp.be_java_hisp_w25_g14.dto.UserFollowedPostDto;
 import com.bootcamp.be_java_hisp_w25_g14.entity.Post;
 import com.bootcamp.be_java_hisp_w25_g14.entity.Product;
-import com.bootcamp.be_java_hisp_w25_g14.exceptions.InvalidRequestException;
-import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
 import com.bootcamp.be_java_hisp_w25_g14.repository.IPostRepo;
 import com.bootcamp.be_java_hisp_w25_g14.repository.IUserRepo;
 import com.bootcamp.be_java_hisp_w25_g14.service.PostServiceImp;
@@ -24,7 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,14 +33,13 @@ public class PostServiceTest {
     @InjectMocks
     PostServiceImp postServiceImp;
 
-
-    /* T - 0005 CASO FELIZ:
-    Verificar que el tipo de ordenamiento
-    por fecha exista (US-0009) date_asc , date_desc
+    /* T - 0006 CASO FELIZ ASCENDENTE:
+        Verificar el correcto ordenamiento ascendente
+        y descendente por fecha. (US-0009)
      */
     @Test
-    @DisplayName("T0005 - Caso feliz")
-    void dateSortingOk(){
+    @DisplayName("T0006 - Caso feliz Orden Ascendente")
+    void getFollowedPostsByUserLastWeeksOrderAscendingOk(){
         /* Arrange */
         Integer id = 1;
         String sorted = "date_asc";
@@ -65,6 +61,7 @@ public class PostServiceTest {
         postsOfLastTwoWeeks.addAll(postsUser2.stream().map(ApiMapper::convertToPostDto)
                 .filter(this::postIsWithinLastTwoWeeksFilter).toList());
 
+
         //Create expectedResult object
         UserFollowedPostDto expectedResult = new UserFollowedPostDto(
                 id,
@@ -76,72 +73,67 @@ public class PostServiceTest {
                 .thenReturn(postsUser1);
         when(postRepo.getPostsById(followedUsers.get(1).getUser_id()))
                 .thenReturn(postsUser2);
+
         /* Act */
         UserFollowedPostDto actual = this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
 
         /* Assert */
         assertEquals(expectedResult,actual);
+
     }
 
-    /* T - 0005 CASO TRISTE (PARAMETRO INVALIDO):
-        Verificar que el tipo de ordenamiento
-        por fecha exista (US-0009) date_asc , date_desc
+    /* T - 0006 CASO FELIZ DESCENDIENTE:
+       Verificar el correcto ordenamiento ascendente
+       y descendente por fecha. (US-0009)
     */
     @Test
-    @DisplayName("T0005 - InvalidParameter")
-    void dateSortingInvalidParameterTest(){
-        //Arrange
-        Integer id = 1;
-        String sorted = "date_ascending";
-        //Act & Assert
-        assertThrows(InvalidRequestException.class, ()->{
-            this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
-        });
-
-    }
-
-    @Test
-    @DisplayName("T0005 - No followed users")
-    void dateSortingEmptyFollowedListTestNotFoundException(){
-        //Arrange
-        Integer id = 15;
-        String sorted = "date_asc";
-        //Act & Assert
-        when(userRepo.getFollowed(id)).thenReturn(List.of());
-
-        assertThrows(NotFoundException.class, ()->{
-            this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
-        });
-    }
-
-    @Test
-    @DisplayName("T0005 - No posts within last two weeks")
-    void dateSortingNoPostsWithinLastTwoWeeksNotFoundException(){
+    @DisplayName("T0006 - Caso feliz Orden Descendiente")
+    void getFollowedPostsByUserLastWeeksOrderDescendingOk(){
         /* Arrange */
         Integer id = 1;
-        String sorted = "date_asc";
+        String sorted = "date_desc";
 
+        //Create mock list of vendors the user follows
         List<UserDataDto> followedUsers = List.of(
                 new UserDataDto(2,"jacob"),
                 new UserDataDto(3,"hector")
         );
 
         //Create 2 mock lists with posts
-        List<Post> postsUser1 = generateMockPosts(4);
+        List<Post> postsUser1 = generateMockPosts(followedUsers.get(0).getUser_id());
+        List<Post> postsUser2 = generateMockPosts(followedUsers.get(1).getUser_id());
+
+        //Merge both lists into one
+        List<PostDto> postsOfLastTwoWeeks = new java.util.ArrayList<>();
+        postsOfLastTwoWeeks.addAll(postsUser1.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+        postsOfLastTwoWeeks.addAll(postsUser2.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+
+
+        //Create expectedResult object
+        UserFollowedPostDto expectedResult = new UserFollowedPostDto(
+                id,
+                HelperFunctions.sortPostsByDateDescending(postsOfLastTwoWeeks)
+        );
 
         when(userRepo.getFollowed(id)).thenReturn(followedUsers);
         when(postRepo.getPostsById(followedUsers.get(0).getUser_id()))
                 .thenReturn(postsUser1);
+        when(postRepo.getPostsById(followedUsers.get(1).getUser_id()))
+                .thenReturn(postsUser2);
 
-        /* Act & Assert */
+        /* Act */
+        UserFollowedPostDto actual = this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
 
-        assertThrows(NotFoundException.class, ()->{
-            this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
-        });
+        /* Assert */
+        assertEquals(expectedResult,actual);
+
     }
 
     private List<Post> generateMockPosts(Integer id){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
         if(id==2){
             return List.of(
                     new Post(2,2,LocalDate.parse("15-02-2024", formatter), new Product(2,"ASUS ROG","Gamer","Asus","Negro","nueva"),10,15000.0),
