@@ -78,7 +78,6 @@ public class UserRepoImp implements IUserRepo {
         validateIfUserExists(follower,"Unable to find user");
         validateIfUserExists(toFollow,"Unable to find user to follow");
 
-
         if(!follower.get().getFollowed().contains(userIdToUnfollow) || !toFollow.get().getFollowers().contains(userId))
             throw new FollowException("Can't unfollow, You don't follow this user");
 

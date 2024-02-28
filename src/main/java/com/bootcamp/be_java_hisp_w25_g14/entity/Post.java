@@ -1,6 +1,8 @@
 package com.bootcamp.be_java_hisp_w25_g14.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +19,9 @@ import java.util.Locale;
 public class Post {
     Integer postId;
     Integer userId;
-    String date;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    LocalDate date;
     Product product;
     Integer category;
     Double price;
