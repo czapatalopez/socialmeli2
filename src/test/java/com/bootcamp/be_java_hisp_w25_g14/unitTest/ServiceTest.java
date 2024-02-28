@@ -1,6 +1,5 @@
-package com.bootcamp.be_java_hisp_w25_g14.T0001;
+package com.bootcamp.be_java_hisp_w25_g14.unitTest;
 
-import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
 import com.bootcamp.be_java_hisp_w25_g14.repository.UserRepoImp;
 import com.bootcamp.be_java_hisp_w25_g14.service.UserServiceImp;
 import org.junit.jupiter.api.Test;
