@@ -13,9 +13,10 @@ import com.bootcamp.be_java_hisp_w25_g14.repository.IPostRepo;
 import com.bootcamp.be_java_hisp_w25_g14.repository.IUserRepo;
 import com.bootcamp.be_java_hisp_w25_g14.utils.ApiMapper;
 import com.bootcamp.be_java_hisp_w25_g14.utils.HelperFunctions;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
+//import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -35,7 +36,7 @@ public class PostServiceImp implements IPostService{
     }
 
     @Override
-    public MessageDto savePost(@Valid PostDto postDto) {
+    public MessageDto savePost(PostDto postDto) {
         Optional<User> isUserExists = userRepository.findUserById(postDto.getUser_id());
 
         if (isUserExists.isEmpty()) throw new NotFoundException("The user does not exist");

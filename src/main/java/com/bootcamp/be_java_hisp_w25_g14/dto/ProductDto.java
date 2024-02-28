@@ -1,14 +1,9 @@
 package com.bootcamp.be_java_hisp_w25_g14.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.*;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
@@ -16,27 +11,32 @@ import javax.validation.constraints.NotNull;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDto {
 
-     @NotNull(message = "The field cannot be empty")
+     @NotNull(message = "The product_id cannot be empty")
+     @Min(value = 1, message = "the product_id cannot be 0 or negative")
      Integer product_id;
 
-     @NotBlank(message = "The field cannot be empty")
-     @Max(value = 40, message = "the name is too long, 40 characters max")
+     @NotBlank(message = "The product_name cannot be empty")
+     @Size(min = 1,max = 40, message = "the product_name is from 1 to 40 characters")
+      @Pattern(regexp = "^[A-Za-z0-9ñÑ ]+$", message = "special characters are not allowed on product_name")
      String product_name;
 
-     @NotBlank(message = "The field cannot be empty")
-     @Max(value = 15, message = "the type is too long, 15 characters max")
+     @NotBlank(message = "The type cannot be empty")
+     @Size(min = 1,max = 15, message = "the type is from 1 to 15 characters")
+     @Pattern(regexp = "^[A-Za-z0-9ñÑ ]+$", message = "special characters are not allowed on type")
      String type;
 
-     @NotBlank(message = "The field cannot be empty")
-     @Max(value = 25, message = "the brand is too long, 25 characters max")
+     @NotBlank(message = "The brand cannot be empty")
+     @Size(min = 1,max = 25, message = "the brand is from 1 to 25 characters")
+     @Pattern(regexp = "^[A-Za-z0-9ñÑ ]+$", message = "special characters are not allowed  on brand")
      String brand;
 
-     @NotBlank(message = "The field cannot be empty")
-     @Max(value = 15, message = "the color is too long, 15 characters max")
+     @NotBlank(message = "The color cannot be empty")
+     @Size(min = 1,max = 15, message = "the color is from 1 to 15 characters")
+     @Pattern(regexp = "^[A-Za-z0-9ñÑ ]+$", message = "special characters are not allowed on color")
      String color;
 
-     @NotBlank(message = "The field cannot be empty")
-     @Max(value = 80, message = "the notes is too long, 80 characters max")
+     @Size(min = 1,max = 80, message = "the notes is from 1 to 80 characters")
+     @Pattern(regexp = "^[A-Za-z0-9ñÑ ]+$", message = "special characters are not allowed on notes")
      String notes;
 
 

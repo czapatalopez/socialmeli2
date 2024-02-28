@@ -1,15 +1,11 @@
 package com.bootcamp.be_java_hisp_w25_g14.controller;
 
-import com.bootcamp.be_java_hisp_w25_g14.dto.MessageDto;
 import com.bootcamp.be_java_hisp_w25_g14.dto.PostDto;
-import com.bootcamp.be_java_hisp_w25_g14.dto.UserFollowedPostDto;
 import com.bootcamp.be_java_hisp_w25_g14.service.IPostService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
 
 import static com.bootcamp.be_java_hisp_w25_g14.utils.UserValidator.validateUserId;
 
@@ -37,7 +33,7 @@ public class PostController {
 
 
     @PostMapping("/post")
-    public ResponseEntity<?> savePost( @Valid @RequestBody PostDto postDto){
+    public ResponseEntity<?> savePost(@Valid @RequestBody PostDto postDto){
         return new ResponseEntity<>(postService.savePost(postDto), HttpStatus.OK);
     }
 
