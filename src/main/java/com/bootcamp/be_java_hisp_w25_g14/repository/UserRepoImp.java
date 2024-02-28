@@ -4,6 +4,7 @@ import com.bootcamp.be_java_hisp_w25_g14.dto.UserDataDto;
 import com.bootcamp.be_java_hisp_w25_g14.entity.User;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.FollowException;
+import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotSellerException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -27,14 +28,10 @@ public class UserRepoImp implements IUserRepo {
     }
 
     @Override
-    public List<User> listSellersFollowers(int id, String order) {
+    public List<User> listSellersFollowers(int id) {
         Optional<User> optionalSellers = userList.stream().filter(x -> x.getUserId() == id && x.getIsSeller() == true).findFirst();
 
-        if (optionalSellers.isEmpty()){
-
-            throw new NotFoundException("Seller not found ");
-
-        }
+        if(!optionalSellers.get().getIsSeller()) throw new NotSellerException("the user is not a seller");
 
         User seller = optionalSellers.get();
         List<User> followers = new ArrayList<>();
@@ -44,10 +41,7 @@ public class UserRepoImp implements IUserRepo {
                 followers.add(user.get());
         }
 
-        if (order != null && order.equalsIgnoreCase("name_asc"))
-            return followers.stream().sorted(Comparator.comparing(User::getUserName)).toList();
-        else
-            return followers.stream().sorted(Comparator.comparing(User::getUserName).reversed()).toList();
+        return followers;
 
     }
 

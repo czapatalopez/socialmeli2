@@ -2,17 +2,16 @@ package com.bootcamp.be_java_hisp_w25_g14.service;
 
 import com.bootcamp.be_java_hisp_w25_g14.dto.UserFollowersCountDto;
 import com.bootcamp.be_java_hisp_w25_g14.entity.User;
-import com.bootcamp.be_java_hisp_w25_g14.exceptions.FollowException;
-import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
+import com.bootcamp.be_java_hisp_w25_g14.exceptions.*;
 import com.bootcamp.be_java_hisp_w25_g14.dto.FollowedListResponseDto;
 import com.bootcamp.be_java_hisp_w25_g14.dto.UserDataDto;
 import com.bootcamp.be_java_hisp_w25_g14.entity.User;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
-import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotSellerException;
 import com.bootcamp.be_java_hisp_w25_g14.repository.IUserRepo;
 import com.bootcamp.be_java_hisp_w25_g14.utils.ApiMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 
@@ -30,11 +29,17 @@ public class UserServiceImp implements IUserService {
     public FollowedListResponseDto listSellersFollowers(int id,String order){
         Optional<User> userFollower = userRepo.findUserById(id);
 
+        if(order!=null && !(order.equals("name_asc") || order.equals("name_desc")))
+            throw new InvalidRequestException("The order parameter should be name_asc or name_desc.");
+
         if (userFollower.isEmpty()) throw new NotFoundException("The user does not exists");
 
-        if(!userFollower.get().getIsSeller()) throw new NotSellerException("the user is not a seller");
+        List<User> followers = userRepo.listSellersFollowers(id);
 
-        return ApiMapper.listSellersFollowers(userFollower.get(),userRepo.listSellersFollowers(id,order));
+        if(followers.isEmpty()) throw new NotFoundException("The user does not have followers");
+        else followers = sortByName(order,followers);
+
+        return ApiMapper.listSellersFollowers(userFollower.get(),followers);
     }
 
     @Override
@@ -72,5 +77,17 @@ public class UserServiceImp implements IUserService {
                 value.getUserName(),
                 userFollowed
         )).orElse(null);
+    }
+
+    private List<User> sortByName(String sorted, List<User> users){
+        if(sorted!=null && !(sorted.equalsIgnoreCase("name_asc") || sorted.equalsIgnoreCase("name_desc")))
+            throw new InvalidRequestException("The order parameter should be either name_asc or name_desc.");
+        else{
+            if (sorted!=null && sorted.equalsIgnoreCase("name_asc"))
+                return users.stream().sorted(Comparator.comparing(User::getUserName)).toList();
+            if(sorted!=null && sorted.equalsIgnoreCase("name_desc"))
+                return users.stream().sorted(Comparator.comparing(User::getUserName).reversed()).toList();
+        }
+        return null;
     }
 }
