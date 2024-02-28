@@ -17,14 +17,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -140,6 +141,95 @@ public class PostServiceTest {
         });
     }
 
+
+    /*
+     * T0008
+     *
+     * */
+
+    @Test
+    @DisplayName("T0008 - validate that posts are from 15 days ago")
+    public void validatePostSellerIsOnDateRangeOk() {
+        /* Arrange */
+        Integer id = 1;
+        String sorted = "date_asc";
+
+        //Create mock list of vendors the user follows
+        List<UserDataDto> followedUsers = List.of(
+                new UserDataDto(2,"jacob"),
+                new UserDataDto(3,"hector")
+        );
+
+        //Create 2 mock lists with posts
+        List<Post> postsUser1 = generateMockPosts(followedUsers.get(0).getUser_id());
+        List<Post> postsUser2 = generateMockPosts(followedUsers.get(1).getUser_id());
+
+        //Merge both lists into one
+        List<PostDto> postsOfLastTwoWeeks = new java.util.ArrayList<>();
+        postsOfLastTwoWeeks.addAll(postsUser1.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+        postsOfLastTwoWeeks.addAll(postsUser2.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+
+        //Create expectedResult object
+        UserFollowedPostDto expectedResult = new UserFollowedPostDto(
+                id,
+                HelperFunctions.sortPostsByDateAscending(postsOfLastTwoWeeks)
+        );
+
+        when(userRepo.getFollowed(id)).thenReturn(followedUsers);
+        when(postRepo.getPostsById(followedUsers.get(0).getUser_id()))
+                .thenReturn(postsUser1);
+        when(postRepo.getPostsById(followedUsers.get(1).getUser_id()))
+                .thenReturn(postsUser2);
+        /* Act */
+        UserFollowedPostDto actual = this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
+
+
+
+        /* Assert */
+        //assertEquals(expectedResult,actual);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        //LocalDate postDate = LocalDate.parse(post.getDate(), formatter);
+        LocalDate today = LocalDate.now();
+
+        assertTrue(actual.getPosts().stream().allMatch(postDto -> {
+            LocalDate postDate = LocalDate.parse(postDto.getDate(), formatter);
+
+            return postDate.isBefore(today.plusDays(1)) && postDate.isAfter(today.minusDays(15));
+        }));
+
+    }
+
+
+    @Test
+    @DisplayName("T0008 - validate if posts are empty throws NotFoundException")
+    public void validatePostSellerIsOnDateRangeNotFoundException() {
+        /* Arrange */
+        Integer id = 1;
+        String sorted = "date_asc";
+
+        //Create mock list of vendors the user follows
+        List<UserDataDto> followedUsers = List.of(
+                new UserDataDto(2,"jacob"),
+                new UserDataDto(3,"hector")
+        );
+
+        //Create 2 mock lists with posts
+        List<Post> postsUser1 = generateMockPosts(followedUsers.get(0).getUser_id());
+        List<Post> postsUser2 = generateMockPosts(followedUsers.get(1).getUser_id());
+
+        when(userRepo.getFollowed(id)).thenReturn(followedUsers);
+        when(postRepo.getPostsById(followedUsers.get(0).getUser_id()))
+                .thenReturn(new ArrayList<>());
+
+
+        assertThrows(NotFoundException.class,() ->postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted));
+
+    }
+
+
+
     private List<Post> generateMockPosts(Integer id){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         if(id==2){
@@ -173,4 +263,9 @@ public class PostServiceTest {
 
         return postDate.isBefore(today.plusDays(1)) && postDate.isAfter(today.minusDays(15));
     }
+
+
+
+
+
 }
