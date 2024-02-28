@@ -21,7 +21,7 @@ public class ServiceTest {
     private UserServiceImp userService;
 
     @Test
-    void followOkTest(){
+    void t0001followOkTest(){
         //Arrange
         Integer userId=2;
         Integer userIdToFollow=3;
@@ -29,6 +29,16 @@ public class ServiceTest {
         //Act
         userService.addFollowe(userId,userIdToFollow);
         verify(userRepo, atLeast(1)).addFollower(userId,userIdToFollow);
+    }
+    @Test
+    void t0002unfollowOkTest(){
+        //Arrange
+        Integer userId=2;
+        Integer userIdToFollow=1;
+
+        //Act
+        userService.removeFollow(userId,userIdToFollow);
+        verify(userRepo, atLeast(1)).removeFollow(userId,userIdToFollow);
     }
 
 
