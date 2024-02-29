@@ -86,8 +86,8 @@ public class UserRepoImp implements IUserRepo {
         }
     }
     @Override
-    public List<User> getFollowed(Integer userId){
-        List<User> followedUsers = new ArrayList<>();
+    public List<UserDataDto> getFollowed(Integer userId){
+        List<UserDataDto> followedUsers = new ArrayList<>();
         Optional<User> user = findUserById(userId);
         if(user.isPresent()){
             List<Integer> followedList = user.get().getFollowed();
@@ -98,7 +98,12 @@ public class UserRepoImp implements IUserRepo {
                     Optional<User> followedUser = this.userList.stream()
                         .filter(usr -> usr.getUserId().equals(followedId))
                         .findFirst();
-                followedUser.ifPresent(followedUsers::add);
+                    if(followedUser.isPresent()){
+                        UserDataDto followedUserDto = new UserDataDto(
+                                followedUser.get().getUserId(),
+                                followedUser.get().getUserName());
+                        followedUsers.add(followedUserDto);
+                    }
             }
             return followedUsers;
         }

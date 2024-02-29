@@ -69,15 +69,20 @@ public class UserServiceImp implements IUserService {
     @Override
     public FollowedListResponseDto getFollowedByUser(Integer userId, String order){
         List<UserDataDto> followedUsers = new ArrayList<>();
-
+        List<User> followedUsr = new ArrayList<>();
         Optional<User> user = this.userRepo.findUserById(userId);
         if (user.isEmpty()) throw new NotFoundException("The user does not exists");
-        List<User> userFollowed = this.userRepo.getFollowed(userId);
-        for(User followed : userFollowed){
+        List<UserDataDto> userFollowed = this.userRepo.getFollowed(userId);
+        for(UserDataDto usr : userFollowed){
+            User userEn = ApiMapper.converDtoToUser(usr);
+            followedUsr.add(userEn);
+        }
+        followedUsr = sortByName(order,followedUsr);
+        for(User followed : followedUsr){
             UserDataDto followedUserDto = new UserDataDto(followed.getUserId(),followed.getUserName());
             followedUsers.add(followedUserDto);
         }
-        userFollowed = sortByName(order,userFollowed);
+
         return user.map(value -> new FollowedListResponseDto(
                 value.getUserId(),
                 value.getUserName(),

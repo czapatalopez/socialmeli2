@@ -42,9 +42,10 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/followed/list")
-    public ResponseEntity<?>getFollowed(@PathVariable Integer userId){
+    public ResponseEntity<?>getFollowed(@PathVariable Integer userId,
+                                        @RequestParam(required = false) String order){
         validateUserId(userId, "UserId");
-        return new ResponseEntity<>(this.userService.getFollowedByUser(userId),HttpStatus.OK);
+        return new ResponseEntity<>(this.userService.getFollowedByUser(userId, order),HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/followers/count")
