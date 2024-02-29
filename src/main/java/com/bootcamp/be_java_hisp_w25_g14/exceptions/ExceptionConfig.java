@@ -3,6 +3,10 @@ package com.bootcamp.be_java_hisp_w25_g14.exceptions;
 import com.bootcamp.be_java_hisp_w25_g14.dto.MessageDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,4 +43,18 @@ public class ExceptionConfig {
     public ResponseEntity<?> noResourceFound(NoHandlerFoundException ex,  HttpServletRequest httpServletRequest){
         return ResponseEntity.status(404).body(new MessageDto("Endpoint No Found", ex.getMessage()));
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        BindingResult result = ex.getBindingResult();
+        FieldError fieldError = result.getFieldError();
+        return  ResponseEntity.status(400).body( new MessageDto("invalid argument", fieldError.getDefaultMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    protected ResponseEntity<?> handleValidationExceptions(HttpMessageNotReadableException ex) {
+        return  ResponseEntity.status(400).body( new MessageDto("Validation error",ex.getMessage()));
+    }
+
+
 }
