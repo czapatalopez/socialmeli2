@@ -27,10 +27,11 @@ public class UserServiceImp implements IUserService {
     }
 
     public FollowedListResponseDto listSellersFollowers(int id,String order){
-        Optional<User> userFollower = userRepo.findUserById(id);
 
         if(order!=null && !(order.equals("name_asc") || order.equals("name_desc")))
             throw new InvalidRequestException("The order parameter should be name_asc or name_desc.");
+
+        Optional<User> userFollower = userRepo.findUserById(id);
 
         if (userFollower.isEmpty()) throw new NotFoundException("The user does not exists");
 

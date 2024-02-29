@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class UserRepoTest {
+public class UserServiceTest {
 
     @InjectMocks
     private UserServiceImp userServiceImp;
@@ -29,6 +29,7 @@ public class UserRepoTest {
         });
 
     }
+
     @Test
     @DisplayName("T0003 - Validate order")
     void validateDescOrderTest(){
