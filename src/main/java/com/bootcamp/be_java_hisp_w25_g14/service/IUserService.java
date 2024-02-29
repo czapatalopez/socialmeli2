@@ -12,7 +12,7 @@ public interface IUserService {
     void removeFollow(Integer userId, Integer userIdToUnfollow);
 
     UserFollowersCountDto getUserFollowersCount(Integer userId);
-    FollowedListResponseDto getFollowedByUser(Integer userId);
+    FollowedListResponseDto getFollowedByUser(Integer userId, String order);
 
     public FollowedListResponseDto listSellersFollowers(int id, String order);
 }

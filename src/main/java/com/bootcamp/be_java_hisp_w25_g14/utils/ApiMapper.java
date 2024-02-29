@@ -31,6 +31,11 @@ public class ApiMapper {
         return  new UserDataDto(user.getUserId(),user.getUserName());
     }
 
+    public static User converDtoToUser(UserDataDto user){
+
+        return  new User(user.getUser_id(),user.getUser_name(),null,null,null);
+    }
+
 
     public static PostDto convertToPostDto(Post post){
 
