@@ -1,4 +1,4 @@
-package com.bootcamp.be_java_hisp_w25_g14.T0005;
+package com.bootcamp.be_java_hisp_w25_g14.service;
 
 import com.bootcamp.be_java_hisp_w25_g14.dto.PostDto;
 import com.bootcamp.be_java_hisp_w25_g14.dto.UserDataDto;
@@ -9,7 +9,6 @@ import com.bootcamp.be_java_hisp_w25_g14.exceptions.InvalidRequestException;
 import com.bootcamp.be_java_hisp_w25_g14.exceptions.NotFoundException;
 import com.bootcamp.be_java_hisp_w25_g14.repository.IPostRepo;
 import com.bootcamp.be_java_hisp_w25_g14.repository.IUserRepo;
-import com.bootcamp.be_java_hisp_w25_g14.service.PostServiceImp;
 import com.bootcamp.be_java_hisp_w25_g14.utils.ApiMapper;
 import com.bootcamp.be_java_hisp_w25_g14.utils.HelperFunctions;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -26,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,11 +36,10 @@ public class PostServiceTest {
     @InjectMocks
     PostServiceImp postServiceImp;
 
-
     /* T - 0005 CASO FELIZ:
-    Verificar que el tipo de ordenamiento
-    por fecha exista (US-0009) date_asc , date_desc
-     */
+   Verificar que el tipo de ordenamiento
+   por fecha exista (US-0009) date_asc , date_desc
+    */
     @Test
     @DisplayName("T0005 - Caso feliz")
     void dateSortingOk(){
@@ -139,6 +137,104 @@ public class PostServiceTest {
         assertThrows(NotFoundException.class, ()->{
             this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
         });
+    }
+
+    /* T - 0006 CASO FELIZ ASCENDENTE:
+       Verificar el correcto ordenamiento ascendente
+       y descendente por fecha. (US-0009)
+    */
+    @Test
+    @DisplayName("T0006 - Caso feliz Orden Ascendente")
+    void getFollowedPostsByUserLastWeeksOrderAscendingOk(){
+        /* Arrange */
+        Integer id = 1;
+        String sorted = "date_asc";
+
+        //Create mock list of vendors the user follows
+        List<UserDataDto> followedUsers = List.of(
+                new UserDataDto(2,"jacob"),
+                new UserDataDto(3,"hector")
+        );
+
+        //Create 2 mock lists with posts
+        List<Post> postsUser1 = generateMockPosts(followedUsers.get(0).getUser_id());
+        List<Post> postsUser2 = generateMockPosts(followedUsers.get(1).getUser_id());
+
+        //Merge both lists into one
+        List<PostDto> postsOfLastTwoWeeks = new java.util.ArrayList<>();
+        postsOfLastTwoWeeks.addAll(postsUser1.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+        postsOfLastTwoWeeks.addAll(postsUser2.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+
+
+        //Create expectedResult object
+        UserFollowedPostDto expectedResult = new UserFollowedPostDto(
+                id,
+                HelperFunctions.sortPostsByDateAscending(postsOfLastTwoWeeks)
+        );
+
+        when(userRepo.getFollowed(id)).thenReturn(followedUsers);
+        when(postRepo.getPostsById(followedUsers.get(0).getUser_id()))
+                .thenReturn(postsUser1);
+        when(postRepo.getPostsById(followedUsers.get(1).getUser_id()))
+                .thenReturn(postsUser2);
+
+        /* Act */
+        UserFollowedPostDto actual = this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
+
+        /* Assert */
+        assertEquals(expectedResult,actual);
+
+    }
+
+    /* T - 0006 CASO FELIZ DESCENDIENTE:
+       Verificar el correcto ordenamiento ascendente
+       y descendente por fecha. (US-0009)
+    */
+    @Test
+    @DisplayName("T0006 - Caso feliz Orden Descendiente")
+    void getFollowedPostsByUserLastWeeksOrderDescendingOk(){
+        /* Arrange */
+        Integer id = 1;
+        String sorted = "date_desc";
+
+        //Create mock list of vendors the user follows
+        List<UserDataDto> followedUsers = List.of(
+                new UserDataDto(2,"jacob"),
+                new UserDataDto(3,"hector")
+        );
+
+        //Create 2 mock lists with posts
+        List<Post> postsUser1 = generateMockPosts(followedUsers.get(0).getUser_id());
+        List<Post> postsUser2 = generateMockPosts(followedUsers.get(1).getUser_id());
+
+        //Merge both lists into one
+        List<PostDto> postsOfLastTwoWeeks = new java.util.ArrayList<>();
+        postsOfLastTwoWeeks.addAll(postsUser1.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+        postsOfLastTwoWeeks.addAll(postsUser2.stream().map(ApiMapper::convertToPostDto)
+                .filter(this::postIsWithinLastTwoWeeksFilter).toList());
+
+
+        //Create expectedResult object
+        UserFollowedPostDto expectedResult = new UserFollowedPostDto(
+                id,
+                HelperFunctions.sortPostsByDateDescending(postsOfLastTwoWeeks)
+        );
+
+        when(userRepo.getFollowed(id)).thenReturn(followedUsers);
+        when(postRepo.getPostsById(followedUsers.get(0).getUser_id()))
+                .thenReturn(postsUser1);
+        when(postRepo.getPostsById(followedUsers.get(1).getUser_id()))
+                .thenReturn(postsUser2);
+
+        /* Act */
+        UserFollowedPostDto actual = this.postServiceImp.getFollowedPostsByUserLastTwoWeeks(id,sorted);
+
+        /* Assert */
+        assertEquals(expectedResult,actual);
+
     }
 
 
@@ -263,9 +359,5 @@ public class PostServiceTest {
 
         return postDate.isBefore(today.plusDays(1)) && postDate.isAfter(today.minusDays(15));
     }
-
-
-
-
 
 }
